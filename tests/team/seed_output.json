@@ -1,0 +1,11 @@
+{
+  "password_for_all_users": "Test#Pass2026",
+  "users": {
+    "owner": "owner@example.com",
+    "member": "member@example.com",
+    "viewer": "viewer@example.com"
+  },
+  "project_code": "da34bb1c-7482-4448-a091-73154abef48c",
+  "api_key_rw": "hcw_KXD0zI8eKJoVz3uGkRso6Uj8h3FO",
+  "api_key_ro": "hcr_oftRJiN5nHIraIPb6xbhAwWDru7W"
+}
