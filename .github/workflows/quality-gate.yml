@@ -1,0 +1,63 @@
+name: Quality gate
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+env:
+  SECRET_KEY: ci-dummy-key
+
+jobs:
+  unit-and-coverage:
+    name: Unit tests and coverage gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install system packages
+        run: sudo apt-get update -qq && sudo apt-get install -y libcurl4-openssl-dev libpython3-dev libssl-dev
+      - name: Install Python packages
+        run: pip install -r requirements.txt -r requirements-dev.txt -r requirements-test.txt
+      - name: Unit tests with coverage
+        run: |
+          coverage run -m pytest tests/team/unit -q
+          coverage json -o coverage.json -q
+      - name: Coverage gate, Check.ping (100% statement and branch)
+        run: python scripts/function_coverage.py hc/api/models.py Check.ping
+      - name: Coverage gate, Check.get_status (100% statement and branch)
+        run: python scripts/function_coverage.py hc/api/models.py Check.get_status
+
+  mutation:
+    name: Mutation testing gate
+    runs-on: ubuntu-latest
+    needs: unit-and-coverage
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install system packages
+        run: sudo apt-get update -qq && sudo apt-get install -y libcurl4-openssl-dev libpython3-dev libssl-dev
+      - name: Install Python packages
+        run: pip install -r requirements.txt -r requirements-dev.txt -r requirements-test.txt
+      - name: Run mutmut on Check.ping and Check.get_status
+        run: mutmut run "hc.api.models.xǁCheckǁping__mutmut_*" "hc.api.models.xǁCheckǁget_status__mutmut_*"
+      - name: Mutation score gate (minimum 80%)
+        run: python scripts/mutation_gate.py --min-score 80
+      - name: Save mutation results
+        if: always()
+        run: mutmut results --all true > mutation_results.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutation-results
+          path: mutation_results.txt

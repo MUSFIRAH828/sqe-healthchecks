@@ -11,3 +11,5 @@ tests/team/seed_output.json
 .coverage
 coverage.json
 coverage.xml
+
+mutants/
