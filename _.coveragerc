@@ -1,0 +1,11 @@
+[run]
+branch = True
+relative_files = True
+include =
+    hc/api/*
+omit =
+    hc/api/tests/*
+    hc/api/migrations/*
+
+[xml]
+output = coverage.xml
