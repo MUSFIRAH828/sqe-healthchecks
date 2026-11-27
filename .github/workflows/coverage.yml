@@ -28,7 +28,9 @@ jobs:
               env:
                   SECRET_KEY: dummy-key
               run: coverage run --omit=*/tests/*,*/migrations/* --source=hc manage.py test
-            - name: Coveralls
+            - name: Generate SonarQube Coverage Report
+              run: coverage xml -o coverage.xml
+              name: Coveralls
               run: coveralls --service=github
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

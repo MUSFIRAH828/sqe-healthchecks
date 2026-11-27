@@ -1,0 +1,28 @@
+name: Sonar
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt pytest pytest-django coverage
+      - name: Unit tests with coverage
+        run: |
+          coverage run -m pytest tests/team/unit -q
+          coverage xml
+      - name: Sonar scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: -Dsonar.qualitygate.wait=true
