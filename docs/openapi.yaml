@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: Healthchecks - Checks module (SQE test subset)
+  version: "baseline-c1039ad"
+  description: >
+    Only the endpoints used by the two tested workflows.
+    Workflow 1: create a check. Workflow 2: ping a check.
+    Limits below were confirmed by probing the baseline (see docs/TEST_BASIS.md).
+servers:
+  - url: http://localhost:8000
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  schemas:
+    CheckCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        tags:
+          type: string
+        timeout:
+          type: integer
+          minimum: 60
+          maximum: 31536000
+          description: Expected period between pings, in seconds. Default 86400.
+        grace:
+          type: integer
+          minimum: 60
+          maximum: 31536000
+          description: Extra wait time in seconds before the check is down. Default 3600.
+        unique:
+          type: array
+          items:
+            type: string
+            enum: [name, slug, tags, timeout, grace]
+          description: If a check with the same values exists, it is returned (200) and no duplicate is made.
+    Check:
+      type: object
+      properties:
+        name: {type: string}
+        timeout: {type: integer}
+        grace: {type: integer}
+        status: {type: string, enum: [new, up, grace, down, paused]}
+        n_pings: {type: integer}
+        last_ping: {type: string, format: date-time, nullable: true}
+        uuid: {type: string, format: uuid}
+        ping_url: {type: string}
+    Error:
+      type: object
+      properties:
+        error: {type: string}
+paths:
+  /api/v3/checks/:
+    post:
+      summary: Create a check (workflow 1)
+      security: [{ApiKey: []}]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/CheckCreate"}
+      responses:
+        "201": {description: Check created, content: {application/json: {schema: {$ref: "#/components/schemas/Check"}}}}
+        "200": {description: A check matching the "unique" fields already existed and is returned}
+        "400": {description: Validation error (for example timeout is too small), content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}}
+        "401": {description: Missing, wrong or read-only API key}
+    get:
+      summary: List checks (used to read shared records back)
+      security: [{ApiKey: []}]
+      responses:
+        "200": {description: List of checks}
+        "401": {description: Missing or wrong API key}
+  /api/v3/checks/{uuid}:
+    get:
+      summary: Read one check
+      security: [{ApiKey: []}]
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: The check, content: {application/json: {schema: {$ref: "#/components/schemas/Check"}}}}
+        "401": {description: Missing or wrong API key}
+        "404": {description: No such check}
+  /ping/{uuid}:
+    get:
+      summary: Send a success ping (workflow 2). POST is also accepted.
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: rid, in: query, required: false, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: "OK, ping recorded"}
+        "400": {description: Invalid rid}
+        "404": {description: Unknown check code}
+  /ping/{uuid}/start:
+    get:
+      summary: Signal that a run started (status and last_ping do not change)
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: OK}
+        "404": {description: Unknown check code}
+  /ping/{uuid}/fail:
+    get:
+      summary: Send a failure ping (status becomes down)
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: OK}
+        "404": {description: Unknown check code}
+  /ping/{uuid}/{exitstatus}:
+    get:
+      summary: Ping with an exit status. 0 is success, 1 to 255 is failure.
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: exitstatus, in: path, required: true, schema: {type: integer, minimum: 0, maximum: 255}}
+      responses:
+        "200": {description: OK}
+        "400": {description: Exit status above 255 (invalid url format)}
+        "404": {description: Unknown check code}
