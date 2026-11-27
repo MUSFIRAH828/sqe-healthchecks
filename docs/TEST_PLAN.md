@@ -26,7 +26,7 @@ Unit (pytest + coverage.py): server-side business logic; API and integration (py
 |-|-|
 |Member 1|Area 1: static analysis, white box, mutation, CI|
 |Alisha Iqbal(24i-3147)|Area 2: API testing and data generation|
-|Member 3|Area 3: use cases, usability, accessibility, security, performance|
+|Aisha Anjum Abbasi (24i-3171)|Area 3: use cases, usability, accessibility, security, performance|
 |Test management is shared. (Fill in names and roll numbers. Each member commits from their own account.)||
 
 ## 5\. Environment and test data
