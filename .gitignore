@@ -8,3 +8,5 @@ hc.sqlite
 hc/local_settings.py
 static-collected
 tests/team/seed_output.json
+.coverage
+coverage.json
