@@ -94,3 +94,18 @@ def test_repeated_create_with_unique_name_makes_no_duplicate(api, unique_name):
     assert second.status_code == 200  # existing check returned
     assert first.json()["uuid"] == second.json()["uuid"]
     assert len(api.list_checks()) == before + 1
+def test_name_length_boundary(api, unique_name):
+    valid_name = "a" * 100
+    invalid_name = "b" * 101
+
+    valid_response = api.create({
+        "name": valid_name,
+        "timeout": 3600,
+    })
+    invalid_response = api.create({
+        "name": invalid_name,
+        "timeout": 3600,
+    })
+
+    assert valid_response.status_code == 201
+    assert invalid_response.status_code == 400
