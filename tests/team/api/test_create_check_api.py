@@ -1,20 +1,64 @@
 """API tests for workflow 1 (create a check): POST /api/v3/checks/.
 
+Input values come from the test data generator (tests/team/generator), which reads docs/openapi.yaml.
 Covers FR1 to FR5, BR1 (boundaries) and BR4 (permission).
 Every test reads the shared records back after the request (success and rejection).
 """
 import pytest
 
-TIMEOUT_CASES = [
-    # (value, expected status code)   3-point BVA on both limits: below, at, above
-    (59, 400),
-    (60, 201),
-    (61, 201),
-    (31_535_999, 201),
-    (31_536_000, 201),
-    (31_536_001, 400),
-]
+from tests.team.generator.generator import get_cases
 
+OP = "post /api/v3/checks/"
+
+
+def case_id(c):
+    return f'{c["technique"]}-{c["group"]}-{str(c["value"])[:14]}'
+
+
+def check_create(api, body, param, case):
+    """Send the request and verify the outcome and the shared records for one generated case."""
+    before = len(api.list_checks())
+    r = api.create(body)
+    after = api.list_checks()
+    if case["valid"]:
+        assert r.status_code in (200, 201), r.text
+        if param in ("timeout", "grace", "name", "tags"):
+            assert api.get_check(r.json()["uuid"]).json()[param] == case["value"]
+        assert len(after) == before + 1
+    else:
+        assert r.status_code == 400, r.text
+        assert param in r.json()["error"]
+        assert len(after) == before  # nothing was stored
+
+
+@pytest.mark.parametrize("case", get_cases(OP, "timeout"), ids=case_id)
+def test_timeout_cases(api, unique_name, case):
+    body = {"name": unique_name("gen-timeout"), "timeout": case["value"], "grace": 3600}
+    check_create(api, body, "timeout", case)
+
+
+@pytest.mark.parametrize("case", get_cases(OP, "grace"), ids=case_id)
+def test_grace_cases(api, unique_name, case):
+    body = {"name": unique_name("gen-grace"), "timeout": 3600, "grace": case["value"]}
+    check_create(api, body, "grace", case)
+
+
+@pytest.mark.parametrize("case", get_cases(OP, "name"), ids=case_id)
+def test_name_cases(api, case):
+    check_create(api, {"name": case["value"]}, "name", case)
+
+
+@pytest.mark.parametrize("case", get_cases(OP, "tags"), ids=case_id)
+def test_tags_cases(api, unique_name, case):
+    check_create(api, {"name": unique_name("gen-tags"), "tags": case["value"]}, "tags", case)
+
+
+@pytest.mark.parametrize("case", get_cases(OP, "unique"), ids=case_id)
+def test_unique_cases(api, unique_name, case):
+    check_create(api, {"name": unique_name("gen-unique"), "unique": case["value"]}, "unique", case)
+
+
+# ---- other requirements ---------------------------------------------------------
 
 def test_create_check_returns_201_and_check_can_be_read_back(api, unique_name):
     name = unique_name()
@@ -43,34 +87,6 @@ def test_omitted_timeout_and_grace_use_defaults(api, unique_name):
     assert stored["grace"] == 3600  # 1 hour
 
 
-@pytest.mark.parametrize("timeout,expected", TIMEOUT_CASES)
-def test_timeout_boundaries(api, unique_name, timeout, expected):
-    before = len(api.list_checks())
-    r = api.create({"name": unique_name("bva-timeout"), "timeout": timeout, "grace": 3600})
-    assert r.status_code == expected
-    after = api.list_checks()
-    if expected == 201:
-        assert api.get_check(r.json()["uuid"]).json()["timeout"] == timeout
-        assert len(after) == before + 1
-    else:
-        assert "timeout" in r.json()["error"]
-        assert len(after) == before  # nothing was stored
-
-
-@pytest.mark.parametrize("grace,expected", TIMEOUT_CASES)
-def test_grace_boundaries(api, unique_name, grace, expected):
-    before = len(api.list_checks())
-    r = api.create({"name": unique_name("bva-grace"), "timeout": 3600, "grace": grace})
-    assert r.status_code == expected
-    after = api.list_checks()
-    if expected == 201:
-        assert api.get_check(r.json()["uuid"]).json()["grace"] == grace
-        assert len(after) == before + 1
-    else:
-        assert "grace" in r.json()["error"]
-        assert len(after) == before
-
-
 def test_missing_api_key_is_rejected(api, unique_name):
     before = len(api.list_checks())
     r = api.create({"name": unique_name()}, key=None)
@@ -94,18 +110,3 @@ def test_repeated_create_with_unique_name_makes_no_duplicate(api, unique_name):
     assert second.status_code == 200  # existing check returned
     assert first.json()["uuid"] == second.json()["uuid"]
     assert len(api.list_checks()) == before + 1
-def test_name_length_boundary(api, unique_name):
-    valid_name = "a" * 100
-    invalid_name = "b" * 101
-
-    valid_response = api.create({
-        "name": valid_name,
-        "timeout": 3600,
-    })
-    invalid_response = api.create({
-        "name": invalid_name,
-        "timeout": 3600,
-    })
-
-    assert valid_response.status_code == 201
-    assert invalid_response.status_code == 400

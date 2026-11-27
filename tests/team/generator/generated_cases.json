@@ -1,0 +1,681 @@
+{
+  "post /api/v3/checks/": {
+    "name": {
+      "in": "body",
+      "cases": [
+        {
+          "param": "name",
+          "technique": "EP",
+          "group": "valid text",
+          "value": "aaaaaaaaaa",
+          "valid": true
+        },
+        {
+          "param": "name",
+          "technique": "BVA",
+          "group": "maximum - 1",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        {
+          "param": "name",
+          "technique": "BVA",
+          "group": "maximum",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        {
+          "param": "name",
+          "technique": "BVA",
+          "group": "maximum + 1",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": false
+        },
+        {
+          "param": "name",
+          "technique": "EP",
+          "group": "wrong type: number",
+          "value": 12345,
+          "valid": false
+        }
+      ]
+    },
+    "tags": {
+      "in": "body",
+      "cases": [
+        {
+          "param": "tags",
+          "technique": "EP",
+          "group": "valid text",
+          "value": "aaaaaaaaaa",
+          "valid": true
+        },
+        {
+          "param": "tags",
+          "technique": "BVA",
+          "group": "maximum - 1",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        {
+          "param": "tags",
+          "technique": "BVA",
+          "group": "maximum",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": true
+        },
+        {
+          "param": "tags",
+          "technique": "BVA",
+          "group": "maximum + 1",
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "valid": false
+        },
+        {
+          "param": "tags",
+          "technique": "EP",
+          "group": "wrong type: number",
+          "value": 12345,
+          "valid": false
+        }
+      ]
+    },
+    "timeout": {
+      "in": "body",
+      "cases": [
+        {
+          "param": "timeout",
+          "technique": "EP",
+          "group": "valid range",
+          "value": 15768030,
+          "valid": true
+        },
+        {
+          "param": "timeout",
+          "technique": "EP",
+          "group": "below minimum",
+          "value": 50,
+          "valid": false
+        },
+        {
+          "param": "timeout",
+          "technique": "EP",
+          "group": "above maximum",
+          "value": 31536010,
+          "valid": false
+        },
+        {
+          "param": "timeout",
+          "technique": "BVA",
+          "group": "minimum - 1",
+          "value": 59,
+          "valid": false
+        },
+        {
+          "param": "timeout",
+          "technique": "BVA",
+          "group": "minimum",
+          "value": 60,
+          "valid": true
+        },
+        {
+          "param": "timeout",
+          "technique": "BVA",
+          "group": "minimum + 1",
+          "value": 61,
+          "valid": true
+        },
+        {
+          "param": "timeout",
+          "technique": "BVA",
+          "group": "maximum - 1",
+          "value": 31535999,
+          "valid": true
+        },
+        {
+          "param": "timeout",
+          "technique": "BVA",
+          "group": "maximum",
+          "value": 31536000,
+          "valid": true
+        },
+        {
+          "param": "timeout",
+          "technique": "BVA",
+          "group": "maximum + 1",
+          "value": 31536001,
+          "valid": false
+        },
+        {
+          "param": "timeout",
+          "technique": "EP",
+          "group": "wrong type: text",
+          "value": "15768030",
+          "valid": false
+        },
+        {
+          "param": "timeout",
+          "technique": "EP",
+          "group": "wrong type: decimal",
+          "value": 15768030.5,
+          "valid": false
+        },
+        {
+          "param": "timeout",
+          "technique": "EP",
+          "group": "wrong type: null",
+          "value": null,
+          "valid": false
+        }
+      ]
+    },
+    "grace": {
+      "in": "body",
+      "cases": [
+        {
+          "param": "grace",
+          "technique": "EP",
+          "group": "valid range",
+          "value": 15768030,
+          "valid": true
+        },
+        {
+          "param": "grace",
+          "technique": "EP",
+          "group": "below minimum",
+          "value": 50,
+          "valid": false
+        },
+        {
+          "param": "grace",
+          "technique": "EP",
+          "group": "above maximum",
+          "value": 31536010,
+          "valid": false
+        },
+        {
+          "param": "grace",
+          "technique": "BVA",
+          "group": "minimum - 1",
+          "value": 59,
+          "valid": false
+        },
+        {
+          "param": "grace",
+          "technique": "BVA",
+          "group": "minimum",
+          "value": 60,
+          "valid": true
+        },
+        {
+          "param": "grace",
+          "technique": "BVA",
+          "group": "minimum + 1",
+          "value": 61,
+          "valid": true
+        },
+        {
+          "param": "grace",
+          "technique": "BVA",
+          "group": "maximum - 1",
+          "value": 31535999,
+          "valid": true
+        },
+        {
+          "param": "grace",
+          "technique": "BVA",
+          "group": "maximum",
+          "value": 31536000,
+          "valid": true
+        },
+        {
+          "param": "grace",
+          "technique": "BVA",
+          "group": "maximum + 1",
+          "value": 31536001,
+          "valid": false
+        },
+        {
+          "param": "grace",
+          "technique": "EP",
+          "group": "wrong type: text",
+          "value": "15768030",
+          "valid": false
+        },
+        {
+          "param": "grace",
+          "technique": "EP",
+          "group": "wrong type: decimal",
+          "value": 15768030.5,
+          "valid": false
+        },
+        {
+          "param": "grace",
+          "technique": "EP",
+          "group": "wrong type: null",
+          "value": null,
+          "valid": false
+        }
+      ]
+    },
+    "unique": {
+      "in": "body",
+      "cases": [
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "valid value: name",
+          "value": [
+            "name"
+          ],
+          "valid": true
+        },
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "valid value: slug",
+          "value": [
+            "slug"
+          ],
+          "valid": true
+        },
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "valid value: tags",
+          "value": [
+            "tags"
+          ],
+          "valid": true
+        },
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "valid value: timeout",
+          "value": [
+            "timeout"
+          ],
+          "valid": true
+        },
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "valid value: grace",
+          "value": [
+            "grace"
+          ],
+          "valid": true
+        },
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "unknown value",
+          "value": [
+            "colour"
+          ],
+          "valid": false
+        },
+        {
+          "param": "unique",
+          "technique": "EP",
+          "group": "wrong type: text instead of list",
+          "value": "name",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "get /api/v3/checks/{uuid}": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "get /ping/{uuid}": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    },
+    "rid": {
+      "in": "query",
+      "cases": [
+        {
+          "param": "rid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "rid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "rid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "rid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "get /ping/{uuid}/start": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "get /ping/{uuid}/fail": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "get /ping/{uuid}/{exitstatus}": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    },
+    "exitstatus": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "exitstatus",
+          "technique": "EP",
+          "group": "valid range",
+          "value": 127,
+          "valid": true
+        },
+        {
+          "param": "exitstatus",
+          "technique": "EP",
+          "group": "below minimum",
+          "value": -10,
+          "valid": false
+        },
+        {
+          "param": "exitstatus",
+          "technique": "EP",
+          "group": "above maximum",
+          "value": 265,
+          "valid": false
+        },
+        {
+          "param": "exitstatus",
+          "technique": "BVA",
+          "group": "minimum - 1",
+          "value": -1,
+          "valid": false
+        },
+        {
+          "param": "exitstatus",
+          "technique": "BVA",
+          "group": "minimum",
+          "value": 0,
+          "valid": true
+        },
+        {
+          "param": "exitstatus",
+          "technique": "BVA",
+          "group": "minimum + 1",
+          "value": 1,
+          "valid": true
+        },
+        {
+          "param": "exitstatus",
+          "technique": "BVA",
+          "group": "maximum - 1",
+          "value": 254,
+          "valid": true
+        },
+        {
+          "param": "exitstatus",
+          "technique": "BVA",
+          "group": "maximum",
+          "value": 255,
+          "valid": true
+        },
+        {
+          "param": "exitstatus",
+          "technique": "BVA",
+          "group": "maximum + 1",
+          "value": 256,
+          "valid": false
+        },
+        {
+          "param": "exitstatus",
+          "technique": "EP",
+          "group": "wrong type: text",
+          "value": "abc",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "post /api/v3/checks/{uuid}/pause": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    }
+  },
+  "post /api/v3/checks/{uuid}/resume": {
+    "uuid": {
+      "in": "path",
+      "cases": [
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "valid uuid",
+          "value": "123e4567-e89b-42d3-a456-426614174000",
+          "valid": true
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: too short",
+          "value": "1234",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: plain text",
+          "value": "zzz",
+          "valid": false
+        },
+        {
+          "param": "uuid",
+          "technique": "EP",
+          "group": "malformed: bad character",
+          "value": "123e4567-e89b-42d3-a456-42661417400g",
+          "valid": false
+        }
+      ]
+    }
+  }
+}

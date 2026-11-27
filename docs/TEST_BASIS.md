@@ -35,7 +35,7 @@ Cross-workflow
 - BR2 (decision, two conditions) a ping is ignored when status is "paused" AND manual_resume is true [verify].
   If manual_resume is false, a ping on a paused check returns it to "up" (probed).
 - BR3 (state change) allowed: new -> up (success ping), up -> down (fail ping), down -> up (success ping),
-  up -> paused (pause), paused -> up (resume or ping). Disallowed: resume on a check that is not paused gives 409 (probed);
+  up -> paused (pause), paused -> up (a ping, when manual_resume is off), paused -> new (resume; the last ping is cleared; probed). Disallowed: resume on a check that is not paused gives 409 (probed);
   a ping with exit status above 255 gives 400 and leaves the status as it was (probed).
 - BR4 (permission) only roles with write access can create checks; read-only access cannot.
   Probed: a missing or read-only API key on create gives 401.

@@ -45,8 +45,20 @@ class Api:
             f"{self.base_url}/api/v3/checks/{check_uuid}", headers=self.headers(key), timeout=10
         )
 
-    def ping(self, check_uuid, suffix=""):
-        return requests.get(f"{self.base_url}/ping/{check_uuid}{suffix}", timeout=10)
+    def ping(self, check_uuid, suffix="", method="GET", **kwargs):
+        url = f"{self.base_url}/ping/{check_uuid}{suffix}"
+        return requests.request(method, url, timeout=10, **kwargs)
+
+    def post_action(self, check_uuid, action, key="rw"):
+        """Call POST /api/v3/checks/<uuid>/pause or /resume."""
+        key = {"rw": self.rw_key, "ro": self.ro_key}.get(key, key)
+        url = f"{self.base_url}/api/v3/checks/{check_uuid}/{action}"
+        return requests.post(url, headers=self.headers(key), timeout=10)
+
+    def state(self, check_uuid):
+        """(status, n_pings, last_ping) of a check, read back through the API."""
+        data = self.get_check(check_uuid).json()
+        return data["status"], data["n_pings"], data["last_ping"]
 
 
 @pytest.fixture(scope="session")
@@ -67,3 +79,11 @@ def api():
 @pytest.fixture
 def unique_name():
     return lambda prefix="api": f"{prefix}-{uuid.uuid4().hex[:8]}"
+
+
+@pytest.fixture
+def new_check(api, unique_name):
+    """A fresh check (status new, no pings); returns its uuid."""
+    r = api.create({"name": unique_name("ping"), "timeout": 3600, "grace": 300})
+    assert r.status_code == 201
+    return r.json()["uuid"]

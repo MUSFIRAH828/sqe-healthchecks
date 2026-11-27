@@ -23,6 +23,7 @@ components:
           maxLength: 100
         tags:
           type: string
+          maxLength: 500
         timeout:
           type: integer
           minimum: 60
@@ -120,4 +121,25 @@ paths:
       responses:
         "200": {description: OK}
         "400": {description: Exit status above 255 (invalid url format)}
-        "404": {description: Unknown check code}
+        "404": {description: Unknown check code, or an exit status that is not a plain non-negative number (for example -1 or abc)}
+  /api/v3/checks/{uuid}/pause:
+    post:
+      summary: Pause a check (status becomes paused)
+      security: [{ApiKey: []}]
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: The check, now paused}
+        "401": {description: Missing, wrong or read-only API key}
+        "404": {description: No such check}
+  /api/v3/checks/{uuid}/resume:
+    post:
+      summary: Resume a paused check (status becomes new, last ping is cleared)
+      security: [{ApiKey: []}]
+      parameters:
+        - {name: uuid, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        "200": {description: The check, now new}
+        "401": {description: Missing, wrong or read-only API key}
+        "404": {description: No such check}
+        "409": {description: The check is not paused}
