@@ -1,0 +1,23 @@
+[cosmic-ray]
+module-path = "hc/api"
+timeout = 60.0
+excluded-modules = ["hc/api/tests/*", "hc/api/migrations/*"]
+test-command = "python -m pytest tests/team/unit -x -q"
+
+[cosmic-ray.distributor]
+name = "local"
+
+# Drop operators that mostly create equivalent or irrelevant mutants (type-hint unions, decorators, loops).
+[cosmic-ray.filters.operators-filter]
+exclude-operators = [
+    "core/ReplaceBinaryOperator_.*",
+    "core/RemoveDecorator",
+    "core/ZeroIterationForLoop",
+    "core/ReplaceComparisonOperator_Eq_(Lt|LtE|Gt|GtE|Is|IsNot)$",
+    "core/ReplaceComparisonOperator_NotEq_(Lt|LtE|Gt|GtE|Is|IsNot)$",
+    "core/ReplaceComparisonOperator_GtE_(NotEq|LtE|Is|IsNot|Eq)$",
+    "core/ReplaceComparisonOperator_Gt_(NotEq|LtE|Lt|Eq)$",
+    "core/ReplaceComparisonOperator_LtE_.*",
+    "core/ReplaceComparisonOperator_Is_IsNot",
+    "core/ReplaceComparisonOperator_IsNot_Is",
+]

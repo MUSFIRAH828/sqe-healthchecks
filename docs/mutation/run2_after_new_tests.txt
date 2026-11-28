@@ -1,0 +1,43 @@
+mutants run: 264  killed: 257  survived: 7  other (timeout/incompetent): 0
+mutation score: 97.3%
+
+per operator (killed / survived):
+  core/AddNot                                     43 /   0
+  core/ExceptionReplacer                           8 /   0
+  core/NumberReplacer                             68 /   6
+  core/ReplaceAndWithOr                            8 /   0
+  core/ReplaceComparisonOperator_Eq_NotEq         16 /   0
+  core/ReplaceComparisonOperator_GtE_Gt            3 /   0
+  core/ReplaceComparisonOperator_GtE_Lt            3 /   0
+  core/ReplaceComparisonOperator_Gt_GtE            1 /   0
+  core/ReplaceComparisonOperator_NotEq_Eq          5 /   0
+  core/ReplaceFalseWithTrue                        4 /   1
+  core/ReplaceOrWithAnd                            2 /   0
+  core/ReplaceTrueWithFalse                        6 /   0
+  core/ReplaceUnaryOperator_Delete_Not             1 /   0
+  hc/HcActionSwap                                 20 /   0
+  hc/HcLimitShift                                 34 /   0
+  hc/HcStatusSwap                                 35 /   0
+
+survivors:
+  1. hc/api/decorators.py:64  core/ReplaceFalseWithTrue  #1
+       code: request.readonly = False
+       diff: -        request.readonly = False || +        request.readonly = True
+  2. hc/api/views.py:92  core/NumberReplacer  #31
+       code: data[k] = 0.0
+       diff: -                data[k] = 0.0 || +                data[k] = -1.0
+  3. hc/api/views.py:92  core/NumberReplacer  #30
+       code: data[k] = 0.0
+       diff: -                data[k] = 0.0 || +                data[k] = 1.0
+  4. hc/api/views.py:120  core/NumberReplacer  #33
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime( 1999, 1, 1))
+  5. hc/api/views.py:120  core/NumberReplacer  #32
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime( 2001, 1, 1))
+  6. hc/api/views.py:120  core/NumberReplacer  #34
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime(2000, 2, 1))
+  7. hc/api/views.py:120  core/NumberReplacer  #36
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime(2000, 1, 2))

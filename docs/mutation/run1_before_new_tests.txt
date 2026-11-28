@@ -1,0 +1,229 @@
+mutants run: 264  killed: 195  survived: 69  other (timeout/incompetent): 0
+mutation score: 73.9%
+
+per operator (killed / survived):
+  core/AddNot                                     39 /   4
+  core/ExceptionReplacer                           4 /   4
+  core/NumberReplacer                             43 /  31
+  core/ReplaceAndWithOr                            7 /   1
+  core/ReplaceComparisonOperator_Eq_NotEq         13 /   3
+  core/ReplaceComparisonOperator_GtE_Gt            3 /   0
+  core/ReplaceComparisonOperator_GtE_Lt            3 /   0
+  core/ReplaceComparisonOperator_Gt_GtE            1 /   0
+  core/ReplaceComparisonOperator_NotEq_Eq          5 /   0
+  core/ReplaceFalseWithTrue                        4 /   1
+  core/ReplaceOrWithAnd                            1 /   1
+  core/ReplaceTrueWithFalse                        5 /   1
+  core/ReplaceUnaryOperator_Delete_Not             1 /   0
+  hc/HcActionSwap                                 14 /   6
+  hc/HcLimitShift                                 19 /  15
+  hc/HcStatusSwap                                 33 /   2
+
+survivors:
+  1. hc/api/decorators.py:64  core/ReplaceFalseWithTrue  #1
+       code: request.readonly = False
+       diff: -        request.readonly = False || +        request.readonly = True
+  2. hc/api/decorators.py:88  core/ReplaceOrWithAnd  #0
+       code: api_key.startswith("hcr_") or api_key == request.project.api_key_readonly
+       diff: -            api_key.startswith("hcr_") or api_key == request.project.api_key_readonly || +            api_key.startswith("hcr_") and api_key == request.project
+  3. hc/api/decorators.py:88  core/ReplaceComparisonOperator_Eq_NotEq  #1
+       code: api_key.startswith("hcr_") or api_key == request.project.api_key_readonly
+       diff: -            api_key.startswith("hcr_") or api_key == request.project.api_key_readonly || +            api_key.startswith("hcr_") or api_key != request.project.
+  4. hc/api/models.py:324  core/ReplaceAndWithOr  #6
+       code: elif self.kind == "oncalendar" and self.status == "up":
+       diff: -        elif self.kind == "oncalendar" and self.status == "up": || +        elif self.kind == "oncalendar" or self.status == "up":
+  5. hc/api/models.py:537  hc/HcActionSwap  #12
+       code: reason = "fail" if action == "fail" else ""
+       diff: -                    reason = "fail" if action == "fail" else "" || +                    reason = "success" if action == "fail" else ""
+  6. hc/api/models.py:537  hc/HcActionSwap  #13
+       code: reason = "fail" if action == "fail" else ""
+       diff: -                    reason = "fail" if action == "fail" else "" || +                    reason = "start" if action == "fail" else ""
+  7. hc/api/models.py:537  core/AddNot  #34
+       code: reason = "fail" if action == "fail" else ""
+       diff: -                    reason = "fail" if action == "fail" else "" || +                    reason = "fail" if not action == "fail" else ""
+  8. hc/api/models.py:537  core/ReplaceComparisonOperator_Eq_NotEq  #13
+       code: reason = "fail" if action == "fail" else ""
+       diff: -                    reason = "fail" if action == "fail" else "" || +                    reason = "fail" if action != "fail" else ""
+  9. hc/api/models.py:537  hc/HcActionSwap  #15
+       code: reason = "fail" if action == "fail" else ""
+       diff: -                    reason = "fail" if action == "fail" else "" || +                    reason = "fail" if action == "start" else ""
+ 10. hc/api/models.py:537  hc/HcActionSwap  #14
+       code: reason = "fail" if action == "fail" else ""
+       diff: -                    reason = "fail" if action == "fail" else "" || +                    reason = "fail" if action == "success" else ""
+ 11. hc/api/models.py:550  hc/HcActionSwap  #16
+       code: if action in ("start", "fail", "ign", "log"):
+       diff: -            if action in ("start", "fail", "ign", "log"): || +            if action in ("fail", "fail", "ign", "log"):
+ 12. hc/api/models.py:550  hc/HcActionSwap  #17
+       code: if action in ("start", "fail", "ign", "log"):
+       diff: -            if action in ("start", "fail", "ign", "log"): || +            if action in ("log", "fail", "ign", "log"):
+ 13. hc/api/views.py:63  core/NumberReplacer  #2
+       code: desc: str | None = Field(None, max_length=10000)
+       diff: -    desc: str | None = Field(None, max_length=10000) || +    desc: str | None = Field(None, max_length= 10001)
+ 14. hc/api/views.py:63  core/NumberReplacer  #3
+       code: desc: str | None = Field(None, max_length=10000)
+       diff: -    desc: str | None = Field(None, max_length=10000) || +    desc: str | None = Field(None, max_length= 9999)
+ 15. hc/api/views.py:64  hc/HcLimitShift  #1
+       code: failure_kw: str | None = Field(None, max_length=200)
+       diff: -    failure_kw: str | None = Field(None, max_length=200) || +    failure_kw: str | None = Field(None, max_length=199)
+ 16. hc/api/views.py:64  core/NumberReplacer  #5
+       code: failure_kw: str | None = Field(None, max_length=200)
+       diff: -    failure_kw: str | None = Field(None, max_length=200) || +    failure_kw: str | None = Field(None, max_length= 199)
+ 17. hc/api/views.py:64  hc/HcLimitShift  #0
+       code: failure_kw: str | None = Field(None, max_length=200)
+       diff: -    failure_kw: str | None = Field(None, max_length=200) || +    failure_kw: str | None = Field(None, max_length=201)
+ 18. hc/api/views.py:64  core/NumberReplacer  #4
+       code: failure_kw: str | None = Field(None, max_length=200)
+       diff: -    failure_kw: str | None = Field(None, max_length=200) || +    failure_kw: str | None = Field(None, max_length= 201)
+ 19. hc/api/views.py:73  core/NumberReplacer  #13
+       code: schedule: str | None = Field(None, max_length=100)
+       diff: -    schedule: str | None = Field(None, max_length=100) || +    schedule: str | None = Field(None, max_length= 99)
+ 20. hc/api/views.py:73  core/NumberReplacer  #12
+       code: schedule: str | None = Field(None, max_length=100)
+       diff: -    schedule: str | None = Field(None, max_length=100) || +    schedule: str | None = Field(None, max_length= 101)
+ 21. hc/api/views.py:73  hc/HcLimitShift  #8
+       code: schedule: str | None = Field(None, max_length=100)
+       diff: -    schedule: str | None = Field(None, max_length=100) || +    schedule: str | None = Field(None, max_length=101)
+ 22. hc/api/views.py:73  hc/HcLimitShift  #9
+       code: schedule: str | None = Field(None, max_length=100)
+       diff: -    schedule: str | None = Field(None, max_length=100) || +    schedule: str | None = Field(None, max_length=99)
+ 23. hc/api/views.py:74  core/NumberReplacer  #15
+       code: slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$")
+       diff: -    slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$") || +    slug: str | None = Field(None, max_length= 99, pattern="^[a-z0-9-_]*$")
+ 24. hc/api/views.py:74  hc/HcLimitShift  #11
+       code: slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$")
+       diff: -    slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$") || +    slug: str | None = Field(None, max_length=99, pattern="^[a-z0-9-_]*$")
+ 25. hc/api/views.py:74  hc/HcLimitShift  #10
+       code: slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$")
+       diff: -    slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$") || +    slug: str | None = Field(None, max_length=101, pattern="^[a-z0-9-_]*$")
+ 26. hc/api/views.py:74  core/NumberReplacer  #14
+       code: slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$")
+       diff: -    slug: str | None = Field(None, max_length=100, pattern="^[a-z0-9-_]*$") || +    slug: str | None = Field(None, max_length= 101, pattern="^[a-z0-9-_]*$")
+ 27. hc/api/views.py:75  hc/HcLimitShift  #12
+       code: start_kw: str | None = Field(None, max_length=200)
+       diff: -    start_kw: str | None = Field(None, max_length=200) || +    start_kw: str | None = Field(None, max_length=201)
+ 28. hc/api/views.py:75  hc/HcLimitShift  #13
+       code: start_kw: str | None = Field(None, max_length=200)
+       diff: -    start_kw: str | None = Field(None, max_length=200) || +    start_kw: str | None = Field(None, max_length=199)
+ 29. hc/api/views.py:75  core/NumberReplacer  #16
+       code: start_kw: str | None = Field(None, max_length=200)
+       diff: -    start_kw: str | None = Field(None, max_length=200) || +    start_kw: str | None = Field(None, max_length= 201)
+ 30. hc/api/views.py:75  core/NumberReplacer  #17
+       code: start_kw: str | None = Field(None, max_length=200)
+       diff: -    start_kw: str | None = Field(None, max_length=200) || +    start_kw: str | None = Field(None, max_length= 199)
+ 31. hc/api/views.py:76  hc/HcLimitShift  #15
+       code: subject: str | None = Field(None, max_length=200)
+       diff: -    subject: str | None = Field(None, max_length=200) || +    subject: str | None = Field(None, max_length=199)
+ 32. hc/api/views.py:76  core/NumberReplacer  #19
+       code: subject: str | None = Field(None, max_length=200)
+       diff: -    subject: str | None = Field(None, max_length=200) || +    subject: str | None = Field(None, max_length= 199)
+ 33. hc/api/views.py:76  hc/HcLimitShift  #14
+       code: subject: str | None = Field(None, max_length=200)
+       diff: -    subject: str | None = Field(None, max_length=200) || +    subject: str | None = Field(None, max_length=201)
+ 34. hc/api/views.py:76  core/NumberReplacer  #18
+       code: subject: str | None = Field(None, max_length=200)
+       diff: -    subject: str | None = Field(None, max_length=200) || +    subject: str | None = Field(None, max_length= 201)
+ 35. hc/api/views.py:77  hc/HcLimitShift  #16
+       code: subject_fail: str | None = Field(None, max_length=200)
+       diff: -    subject_fail: str | None = Field(None, max_length=200) || +    subject_fail: str | None = Field(None, max_length=201)
+ 36. hc/api/views.py:77  core/NumberReplacer  #21
+       code: subject_fail: str | None = Field(None, max_length=200)
+       diff: -    subject_fail: str | None = Field(None, max_length=200) || +    subject_fail: str | None = Field(None, max_length= 199)
+ 37. hc/api/views.py:77  hc/HcLimitShift  #17
+       code: subject_fail: str | None = Field(None, max_length=200)
+       diff: -    subject_fail: str | None = Field(None, max_length=200) || +    subject_fail: str | None = Field(None, max_length=199)
+ 38. hc/api/views.py:77  core/NumberReplacer  #20
+       code: subject_fail: str | None = Field(None, max_length=200)
+       diff: -    subject_fail: str | None = Field(None, max_length=200) || +    subject_fail: str | None = Field(None, max_length= 201)
+ 39. hc/api/views.py:78  hc/HcLimitShift  #18
+       code: success_kw: str | None = Field(None, max_length=200)
+       diff: -    success_kw: str | None = Field(None, max_length=200) || +    success_kw: str | None = Field(None, max_length=201)
+ 40. hc/api/views.py:78  hc/HcLimitShift  #19
+       code: success_kw: str | None = Field(None, max_length=200)
+       diff: -    success_kw: str | None = Field(None, max_length=200) || +    success_kw: str | None = Field(None, max_length=199)
+ 41. hc/api/views.py:78  core/NumberReplacer  #22
+       code: success_kw: str | None = Field(None, max_length=200)
+       diff: -    success_kw: str | None = Field(None, max_length=200) || +    success_kw: str | None = Field(None, max_length= 201)
+ 42. hc/api/views.py:78  core/NumberReplacer  #23
+       code: success_kw: str | None = Field(None, max_length=200)
+       diff: -    success_kw: str | None = Field(None, max_length=200) || +    success_kw: str | None = Field(None, max_length= 199)
+ 43. hc/api/views.py:79  core/NumberReplacer  #25
+       code: tags: str | None = Field(None, max_length=500)
+       diff: -    tags: str | None = Field(None, max_length=500) || +    tags: str | None = Field(None, max_length= 499)
+ 44. hc/api/views.py:79  hc/HcLimitShift  #21
+       code: tags: str | None = Field(None, max_length=500)
+       diff: -    tags: str | None = Field(None, max_length=500) || +    tags: str | None = Field(None, max_length=499)
+ 45. hc/api/views.py:82  hc/HcStatusSwap  #1
+       code: unique: list[Literal["name", "slug", "tags", "timeout", "grace"]] | None = None
+       diff: -    unique: list[Literal["name", "slug", "tags", "timeout", "grace"]] | None = None || +    unique: list[Literal["name", "slug", "tags", "timeout", "down"]] | 
+ 46. hc/api/views.py:82  hc/HcStatusSwap  #0
+       code: unique: list[Literal["name", "slug", "tags", "timeout", "grace"]] | None = None
+       diff: -    unique: list[Literal["name", "slug", "tags", "timeout", "grace"]] | None = None || +    unique: list[Literal["name", "slug", "tags", "timeout", "up"]] | No
+ 47. hc/api/views.py:92  core/NumberReplacer  #31
+       code: data[k] = 0.0
+       diff: -                data[k] = 0.0 || +                data[k] = -1.0
+ 48. hc/api/views.py:92  core/NumberReplacer  #30
+       code: data[k] = 0.0
+       diff: -                data[k] = 0.0 || +                data[k] = 1.0
+ 49. hc/api/views.py:105  core/AddNot  #3
+       code: if v in legacy_timezones:
+       diff: -        if v in legacy_timezones: || +        if not v in legacy_timezones:
+ 50. hc/api/views.py:110  core/AddNot  #4
+       code: if v not in all_timezones:
+       diff: -        if v not in all_timezones: || +        if not v not in all_timezones:
+ 51. hc/api/views.py:117  core/AddNot  #5
+       code: if guess_kind(v) == "cron":
+       diff: -        if guess_kind(v) == "cron": || +        if not guess_kind(v) == "cron":
+ 52. hc/api/views.py:117  core/ReplaceComparisonOperator_Eq_NotEq  #1
+       code: if guess_kind(v) == "cron":
+       diff: -        if guess_kind(v) == "cron": || +        if guess_kind(v) != "cron":
+ 53. hc/api/views.py:120  core/NumberReplacer  #33
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime( 1999, 1, 1))
+ 54. hc/api/views.py:120  core/NumberReplacer  #32
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime( 2001, 1, 1))
+ 55. hc/api/views.py:120  core/NumberReplacer  #35
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime(2000, 0, 1))
+ 56. hc/api/views.py:120  core/NumberReplacer  #34
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime(2000, 2, 1))
+ 57. hc/api/views.py:120  core/NumberReplacer  #37
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime(2000, 1, 0))
+ 58. hc/api/views.py:120  core/NumberReplacer  #36
+       code: it = CronSim(v, datetime(2000, 1, 1))
+       diff: -                it = CronSim(v, datetime(2000, 1, 1)) || +                it = CronSim(v, datetime(2000, 1, 2))
+ 59. hc/api/views.py:122  core/ExceptionReplacer  #0
+       code: except (CronSimError, StopIteration):
+       diff: -            except (CronSimError, StopIteration): || +            except (CosmicRayTestingException, StopIteration):
+ 60. hc/api/views.py:122  core/ExceptionReplacer  #1
+       code: except (CronSimError, StopIteration):
+       diff: -            except (CronSimError, StopIteration): || +            except (CronSimError, CosmicRayTestingException):
+ 61. hc/api/views.py:127  core/NumberReplacer  #39
+       code: oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc))
+       diff: -                oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc)) || +                oncalendar_it = OnCalendar(v, datetime( 1999, 1, 1
+ 62. hc/api/views.py:127  core/NumberReplacer  #38
+       code: oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc))
+       diff: -                oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc)) || +                oncalendar_it = OnCalendar(v, datetime( 2001, 1, 1
+ 63. hc/api/views.py:127  core/NumberReplacer  #41
+       code: oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc))
+       diff: -                oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc)) || +                oncalendar_it = OnCalendar(v, datetime(2000, 0, 1,
+ 64. hc/api/views.py:127  core/NumberReplacer  #40
+       code: oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc))
+       diff: -                oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc)) || +                oncalendar_it = OnCalendar(v, datetime(2000, 2, 1,
+ 65. hc/api/views.py:127  core/NumberReplacer  #42
+       code: oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc))
+       diff: -                oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc)) || +                oncalendar_it = OnCalendar(v, datetime(2000, 1, 2,
+ 66. hc/api/views.py:127  core/NumberReplacer  #43
+       code: oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc))
+       diff: -                oncalendar_it = OnCalendar(v, datetime(2000, 1, 1, tzinfo=timezone.utc)) || +                oncalendar_it = OnCalendar(v, datetime(2000, 1, 0,
+ 67. hc/api/views.py:129  core/ExceptionReplacer  #2
+       code: except (OnCalendarError, StopIteration):
+       diff: -            except (OnCalendarError, StopIteration): || +            except (CosmicRayTestingException, StopIteration):
+ 68. hc/api/views.py:129  core/ExceptionReplacer  #3
+       code: except (OnCalendarError, StopIteration):
+       diff: -            except (OnCalendarError, StopIteration): || +            except (OnCalendarError, CosmicRayTestingException):
+ 69. hc/api/views.py:462  core/ReplaceTrueWithFalse  #2
+       code: spec = Spec.model_validate(request.json, strict=True)
+       diff: -        spec = Spec.model_validate(request.json, strict=True) || +        spec = Spec.model_validate(request.json, strict=False)

@@ -22,6 +22,8 @@ def get_status(self, *, with_started=False):
     return "up"
 ```
 
+![Control flow graph of get_status](cfg_get_status.png)
+
 ## Nodes
 | Node | Content |
 |---|---|
@@ -85,3 +87,11 @@ Tool check: radon reports 8 for this function. SonarQube value: (fill in after t
 | 6 | N1 F, N6 F, N8 F, N10 T, N11 | grace ended | test_path_6_... |
 | 7 | ... N10 F, N12 T, N13 | inside grace | test_path_7_... |
 | 8 | ... N12 F, N14 | ping on time | test_path_8_... |
+
+## Worked calculation (steps to write in the report)
+1. Number the code blocks: every `if`/`elif` test is a decision node (N1, N2, N4, N6, N8, N10, N12); every `return` is a node (N3, N5, N7, N9, N11, N13, N14); add one Exit node. Total N = 7 + 7 + 1 = 15.
+2. Count the edges: each decision has a True edge and a False edge (7 x 2 = 14); each of the 7 return nodes has one edge to Exit (7). Total E = 14 + 7 = 21.
+3. V(G) = E - N + 2P = 21 - 15 + 2 x 1 = 8.
+4. Check with decisions + 1: D1..D7 are 7 decisions, so 7 + 1 = 8. Both formulas agree.
+5. Meaning: 8 independent paths, so at least 8 tests are needed to cover all basis paths. There are 8 (test_get_status_paths.py).
+6. Compare: radon = 8; SonarQube = ____ (step 16). If SonarQube differs, explain why (Sonar counts "and"/"or" and each function separately; this function has no "and"/"or").

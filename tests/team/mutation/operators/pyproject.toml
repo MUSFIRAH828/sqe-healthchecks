@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hc-operators"
+version = "0.1.0"
+description = "Custom Cosmic Ray mutation operators for the Healthchecks business rules (SQE project)"
+requires-python = ">=3.12"
+dependencies = ["cosmic-ray", "parso"]
+
+[project.entry-points."cosmic_ray.operator_providers"]
+hc = "hc_operators.provider:HcProvider"
+
+[tool.setuptools]
+packages = ["hc_operators"]

@@ -1,0 +1,180 @@
+# Quality gate: runs on every pull request (and on pushes to master).
+# Merge is blocked when a job fails (branch protection: require these jobs, see docs/CI_SETUP.md).
+# There is no continue-on-error and no "|| true" anywhere in this file.
+name: CI quality gate
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  unit:
+    name: unit tests and coverage gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: System packages for pycurl
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+      - name: Install
+        run: pip install -r requirements.txt -r requirements-dev.txt pytest pytest-django coverage requests
+      - name: Unit tests with coverage
+        run: |
+          python -m coverage run -m pytest tests/team/unit -q
+          python -m coverage json -o coverage.json -q
+          python -m coverage xml -q
+      - name: Coverage gate, 100% statements and branches of each business-rule function
+        run: |
+          python scripts/function_coverage.py hc/api/models.py Check.ping
+          python scripts/function_coverage.py hc/api/models.py Check.get_status
+          python scripts/function_coverage.py hc/api/models.py Check.going_down_after
+          python scripts/function_coverage.py hc/api/models.py Check.get_grace_start
+          python scripts/function_coverage.py hc/api/decorators.py authorize
+          python scripts/function_coverage.py hc/api/decorators.py authorize_read
+          python scripts/function_coverage.py hc/api/views.py create_check
+          python scripts/function_coverage.py hc/api/views.py Spec.check_nulls
+          python scripts/function_coverage.py hc/api/views.py Spec.convert_to_timedelta
+          python scripts/function_coverage.py hc/api/views.py Spec.check_tz
+          python scripts/function_coverage.py hc/api/views.py Spec.check_schedule
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: |
+            coverage.xml
+            coverage.json
+
+  api:
+    name: API tests against a running app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: System packages for pycurl
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+      - name: Install
+        run: pip install -r requirements.txt -r requirements-dev.txt pytest pytest-django coverage requests
+      - name: Create database and seed test data
+        run: |
+          python manage.py migrate
+          python scripts/seed_test_data.py
+      - name: Start the application
+        run: |
+          nohup python manage.py runserver 8000 --noreload > server.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/ > /dev/null && exit 0; sleep 2; done
+          cat server.log
+          exit 1
+      - name: API tests (a missing server is a failure, not a skip)
+        run: API_TESTS_REQUIRED=1 python -m pytest tests/team/api -q
+
+  mutation:
+    name: mutation testing gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: System packages for pycurl
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+      - name: Install
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt pytest pytest-django coverage requests
+          pip install cosmic-ray ./tests/team/mutation/operators
+      - name: Create the mutation session and keep only business-rule mutants
+        run: |
+          cosmic-ray init tests/team/mutation/cosmic-ray.toml session.sqlite
+          cr-filter-operators session.sqlite tests/team/mutation/cosmic-ray.toml
+          python tests/team/mutation/scope_filter.py session.sqlite
+      - name: Baseline (tests must pass before mutating)
+        run: cosmic-ray baseline tests/team/mutation/cosmic-ray.toml
+      - name: Run mutants
+        run: cosmic-ray exec tests/team/mutation/cosmic-ray.toml session.sqlite
+      - name: Mutation score gate (at least 90%)
+        shell: bash
+        run: |
+          set -o pipefail
+          python tests/team/mutation/report.py session.sqlite --min-score 90 | tee mutation_report.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutation
+          path: |
+            mutation_report.txt
+            session.sqlite
+
+  sonar:
+    name: SonarQube analysis and gate
+    runs-on: ubuntu-latest
+    services:
+      sonarqube:
+        image: sonarqube:community
+        ports:
+          - 9000:9000
+        env:
+          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - name: System packages for pycurl
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+      - name: Install
+        run: pip install -r requirements.txt -r requirements-dev.txt pytest pytest-django coverage requests
+      - name: Coverage report for SonarQube
+        run: |
+          python -m coverage run -m pytest tests/team/unit -q
+          python -m coverage xml -q
+      - name: Wait for SonarQube
+        shell: bash
+        run: |
+          for i in $(seq 1 90); do
+            if status=$(curl -s http://localhost:9000/api/system/status | python -c "import sys,json; print(json.load(sys.stdin).get('status',''))" 2>/dev/null) && [ "$status" = "UP" ]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "SonarQube did not start"
+          exit 1
+      - name: Create an analysis token
+        shell: bash
+        run: |
+          token=$(curl -s -u admin:admin -X POST http://localhost:9000/api/user_tokens/generate -d "name=ci-${GITHUB_RUN_ID}" | python -c "import sys,json; print(json.load(sys.stdin)['token'])")
+          echo "SONAR_TOKEN=${token}" >> "$GITHUB_ENV"
+      - name: Analyse
+        run: |
+          docker run --rm --network host \
+            -e SONAR_HOST_URL=http://localhost:9000 -e SONAR_TOKEN="$SONAR_TOKEN" \
+            -v "$PWD:/usr/src" sonarsource/sonar-scanner-cli
+      - name: Gate on bugs, vulnerabilities and coverage
+        run: python tests/team/sonar_gate.py http://localhost:9000 "$SONAR_TOKEN"
+
+  package:
+    name: release package (deployment is blocked unless every gate passed)
+    if: github.event_name == 'push'
+    needs: [unit, api, mutation, sonar]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the release archive
+        run: git archive --format=zip --output=healthchecks-release.zip HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: healthchecks-release.zip
