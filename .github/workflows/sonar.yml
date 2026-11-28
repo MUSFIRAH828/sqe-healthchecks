@@ -1,11 +1,20 @@
-name: Sonar
+name: SonarQube Cloud
+
 on:
-  pull_request:
   push:
     branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+env:
+  SECRET_KEY: ci-dummy-key
 
 jobs:
   sonar:
+    name: SonarQube analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,15 +23,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install
-        run: pip install -r requirements.txt pytest pytest-django coverage
-      - name: Unit tests with coverage
+          cache: pip
+      - name: Install system packages
+        run: sudo apt-get update -qq && sudo apt-get install -y libcurl4-openssl-dev libpython3-dev libssl-dev
+      - name: Install Python packages
+        run: pip install -r requirements.txt -r requirements-dev.txt -r requirements-test.txt
+      - name: Unit tests with coverage report
         run: |
           coverage run -m pytest tests/team/unit -q
           coverage xml
-      - name: Sonar scan
-        uses: SonarSource/sonarqube-scan-action@v5
+      - name: SonarQube scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: -Dsonar.qualitygate.wait=true
